@@ -1,5 +1,5 @@
 <?php
-
+namespace AULA10;
 // Polimorfismo
 
 // O termo Polimorfismo significa "várias formas". Associando isso a Programação Orientada a Objetos, o conceito se trata de várias classes e suas instâncias (objetos) respondendo a um mesmo método de formas diferentes.
@@ -12,16 +12,21 @@ interface Veiculo {
     public function mover(): void;
 }
 class Carro implements Veiculo {
+    public $nome;
     public function mover(): void {
         echo "O carro está dirigindo na estrada.\n";
     }
 }
+
 class Aviao implements Veiculo {
+    public $nome;
     public function mover(): void {
         echo "O avião está voando no céu.\n";
     }
 }
+
 class Barco implements Veiculo {
+    public $nome;
     public function mover(): void {
         echo "O barco está navegando.\n";
     }
@@ -31,6 +36,18 @@ class Elevador implements Veiculo {
         echo "O elevador está subindo ou descendo no prédio.\n";
     }
 }
+
+$carro1 = new Carro();
+$carro1->nome = "Fusca";
+$carro1->mover();
+$aviao1 = new Aviao();
+$aviao1->nome = "Cessna";
+$aviao1->mover();
+$barco1 = new Barco();
+$barco1->nome = "Titanic";
+$barco1->mover();
+
+
     
 
 
