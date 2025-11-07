@@ -37,7 +37,7 @@ class BebidaDAO {
             'qtde' => $bebida->getQtde()
         ];
     }   
-    file_put_contents($this->arquivoJson, json_encode($dadosParaSalvar, JSON_PRETTY_PRINT));
+    file_put_contents($this->arquivoJson, json_encode($dadosParaSalvar, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
   }
   // create
   public function criarBebidas(Bebida $bebida){
@@ -66,4 +66,21 @@ class BebidaDAO {
         unset($this->bebidasArray[$nome]);
         $this->salvarArquivo();
     }
+    // editar bebida
+    public function editarBebida($nome, $categoria, $volume, $valor, $qtde){
+        if (isset($this->bebidasArray[$nome])) {
+            $this->bebidasArray[$nome];
+            $this->bebidasArray[$nome]->setCategoria($categoria);
+            $this->bebidasArray[$nome]->setVolume($volume);
+            $this->bebidasArray[$nome]->setValor($valor);
+            $this->bebidasArray[$nome]->setQtde($qtde);
+    
+        }
+        $this->salvarArquivo();
+    }
+    public function buscarBebidaPorNome($nome){
+        // Retorna o objeto Bebida no índice com o nome fornecido, ou null se não existir
+        return $this->bebidasArray[$nome] ?? null;
 }
+}
+?>

@@ -36,11 +36,17 @@ class BebidaController {
         $this->dao->atualizarBebidas($nome, $valor, $qtde);
     }
 
-        // exclui bebida
     public function deletar($nome) {
             $this->dao->excluirBebida($nome);
         
         }
+    
+    public function editar($nome, $categoria, $volume, $valor, $qtde) {
+        $this->dao->editarBebida($nome, $categoria, $volume, $valor, $qtde);    
     }
+    public function buscar($nome) {
+        return $this->dao->buscarBebidaPorNome($nome);
+    }
+}
 
 ?>

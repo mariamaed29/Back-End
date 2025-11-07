@@ -1,9 +1,16 @@
 {
-    "Vinho": {
-        "nome": "Vinho",
-        "categoria": "Vinho",
-        "volume": "a",
-        "valor": "3",
-        "qtde": "6"
+    "Askov": {
+        "nome": "Askov",
+        "categoria": "Destilado",
+        "volume": "1L",
+        "valor": "30.00",
+        "qtde": "21"
+    },
+    "Café": {
+        "nome": "Café",
+        "categoria": "Energético",
+        "volume": "250 ml",
+        "valor": "8.00",
+        "qtde": "187"
     }
 }
