@@ -1,274 +1,86 @@
-<?php
-namespace Aula_16;
+<?php 
+ namespace Aula_15; //
+class BebidaDAO { //atributo que guarda as bebidas em um array
+    private $bebidasArray = []; // array associativo
 
-require_once __DIR__ . '/Bebida.php';
-<?php
-namespace Aula_16;
+    private $arquivoJson = 'bebidas.json'; // arquivo onde os dados serao salvos
 
-require_once __DIR__ . '/Bebida.php';
-require_once __DIR__ . '/Connection.php';
+    public function __construct() { //carrega os dados do arquivo JSON, se existir
+        if (file_exists($this->arquivoJson)) {
+            $conteudoArquivo = file_get_contents($this->arquivoJson); // lê o conteúdo do arquivo
 
-use PDO;
+                $dadosArquivosEmArray = json_decode($conteudoArquivo, true);
 
-class BebidaDAO {
-    private $conn;
-
-    public function __construct() {
-        $this->conn = Connection::getInstance();
-
-        // Cria a tabela se não existir
-        $this->conn->exec(
-            "CREATE TABLE IF NOT EXISTS bebidas (\n" .
-            "id INT AUTO_INCREMENT PRIMARY KEY,\n" .
-            "nome VARCHAR(100) NOT NULL UNIQUE,\n" .
-            "categoria VARCHAR(50) NOT NULL,\n" .
-            "volume VARCHAR(20) NOT NULL,\n" .
-            "valor DECIMAL(10,2) NOT NULL,\n" .
-            "qtde INT NOT NULL\n)"
-        );
-    }
-
-    // CREATE
-    public function criarBebida(Bebida $bebida) {
-        $stmt = $this->conn->prepare(
-            "INSERT INTO bebidas (nome, categoria, volume, valor, qtde) VALUES (:nome, :categoria, :volume, :valor, :qtde)"
-        );
-        $stmt->execute([
-            ':nome' => $bebida->getNome(),
-            ':categoria' => $bebida->getCategoria(),
-            ':volume' => $bebida->getVolume(),
-            ':valor' => $bebida->getValor(),
-            ':qtde' => $bebida->getQtde()
-        ]);
-    }
-
-    // Compatibilidade com controller (plural)
-    public function criarBebidas(Bebida $bebida) {
-        $this->criarBebida($bebida);
-    }
-
-    // READ
-    public function lerBebidas() {
-        $stmt = $this->conn->query("SELECT * FROM bebidas ORDER BY nome");
-        $result = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $result[] = new Bebida(
-                $row['nome'],
-                $row['categoria'],
-                $row['volume'],
-                $row['valor'],
-                $row['qtde']
-            );
+            if ($dadosArquivosEmArray) {
+                foreach ($dadosArquivosEmArray as $nome => $info) { // cria objetos Bebida e os adiciona ao array
+                    $this->bebidasArray[$nome] = new Bebida(
+                        $info['nome'],
+                        $info['categoria'],
+                        $info['volume'],
+                        $info['valor'],
+                        $info['qtde']
+                    );
+                }
+            }
         }
-        return $result;
     }
 
-    // UPDATE (rename/full update)
-    public function atualizarBebida($nomeOriginal, $novoNome, $categoria, $volume, $valor, $qtde) {
-        $stmt = $this->conn->prepare(
-            "UPDATE bebidas SET nome = :novoNome, categoria = :categoria, volume = :volume, valor = :valor, qtde = :qtde WHERE nome = :nomeOriginal"
-        );
-        $stmt->execute([
-            ':novoNome' => $novoNome,
-            ':categoria' => $categoria,
-            ':volume' => $volume,
-            ':valor' => $valor,
-            ':qtde' => $qtde,
-            ':nomeOriginal' => $nomeOriginal
-        ]);
+ private function salvarArquivo(){ // salva os dados do array no arquivo JSON
+    $dadosParaSalvar = []; // array associativo para armazenar os dados a serem salvos
+
+    foreach ($this->bebidasArray AS $nome => $bebida) { // percorre o array de bebidas
+        $dadosParaSalvar[$nome] = [ // cria um array associativo para cada bebida
+            'nome' => $bebida->getNome(), // obtém os valores usando os getters
+            'categoria' => $bebida->getCategoria(), 
+            'volume' => $bebida->getVolume(),
+            'valor' => $bebida->getValor(),
+            'qtde' => $bebida->getQtde()
+        ];
+    }   
+    file_put_contents($this->arquivoJson, json_encode($dadosParaSalvar, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+  } 
+  // create
+  public function criarBebidas(Bebida $bebida){ // adiciona nova bebida ao array
+    $this->bebidasArray[$bebida->getNome()] = $bebida;
+    $this->salvarArquivo();
+  }
+
+   // read 
+    public function lerBebidas(){ // retorna todas as bebidas
+        return $this->bebidasArray;
     }
 
-    // Atualização mínima usada pelo controller: atualiza valor e quantidade por nome
-    public function atualizarBebidas($nome, $valor, $qtde) {
-        $stmt = $this->conn->prepare("UPDATE bebidas SET valor = :valor, qtde = :qtde WHERE nome = :nome");
-        $stmt->execute([
-            ':valor' => $valor,
-            ':qtde' => $qtde,
-            ':nome' => $nome
-        ]);
-    }
-
-    // DELETE
-    public function excluirBebida($nome) {
-        $stmt = $this->conn->prepare("DELETE FROM bebidas WHERE nome = :nome");
-        $stmt->execute([':nome' => $nome]);
-    }
-
-    // BUSCAR POR NOME (internal)
-    public function buscarPorNome($nome) {
-        $stmt = $this->conn->prepare("SELECT * FROM bebidas WHERE nome = :nome LIMIT 1");
-        $stmt->execute([':nome' => $nome]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row) {
-            return new Bebida(
-                $row['nome'],
-                $row['categoria'],
-                $row['volume'],
-                $row['valor'],
-                $row['qtde']
-            );
+  //update 
+    public function atualizarBebidas($nome, $novovalor, $novaqtde){ // atualiza valor e qtde da bebida
+        if (isset($this->bebidasArray[$nome])) { // verifica se a bebida existe
+            $this->bebidasArray[$nome]; // acessa a bebida pelo nome
+            $this->bebidasArray[$nome]->setValor($novovalor);
+            $this->bebidasArray[$nome]->setQtde($novaqtde);
+    
         }
-        return null;
+        $this->salvarArquivo(); // salva as alterações no arquivo
     }
 
-    // Compatibilidade com controller
-    public function buscarBebidaPorNome($nome) {
-        return $this->buscarPorNome($nome);
+   // delete
+    public function excluirBebida($nome){ // remove a bebida do array
+        unset($this->bebidasArray[$nome]); // remove a bebida do array
+        $this->salvarArquivo();
     }
-
-    // Editar — atualiza categoria, volume, valor e qtde para um nome existente
-    public function editarBebida($nome, $categoria, $volume, $valor, $qtde) {
-        $stmt = $this->conn->prepare(
-            "UPDATE bebidas SET categoria = :categoria, volume = :volume, valor = :valor, qtde = :qtde WHERE nome = :nome"
-        );
-        $stmt->execute([
-            ':categoria' => $categoria,
-            ':volume' => $volume,
-            ':valor' => $valor,
-            ':qtde' => $qtde,
-            ':nome' => $nome,
-        ]);
+    // editar bebida
+    public function editarBebida($nome, $categoria, $volume, $valor, $qtde){
+        if (isset($this->bebidasArray[$nome])) {
+            $this->bebidasArray[$nome];
+            $this->bebidasArray[$nome]->setCategoria($categoria);
+            $this->bebidasArray[$nome]->setVolume($volume);
+            $this->bebidasArray[$nome]->setValor($valor);
+            $this->bebidasArray[$nome]->setQtde($qtde);
+    
+        }
+        $this->salvarArquivo();
     }
+    public function buscarBebidaPorNome($nome){
+        // Retorna o objeto Bebida no índice com o nome fornecido, ou null se não existir
+        return $this->bebidasArray[$nome] ?? null;
 }
-<?php
-namespace Aula_16;
-
-require_once __DIR__ . '/Bebida.php';
-require_once __DIR__ . '/Connection.php';
-
-use PDO;
-
-class BebidaDAO {
-    private $conn;
-
-    public function __construct() {
-        $this->conn = Connection::getInstance();
-
-        <?php
-        namespace Aula_16;
-
-        require_once __DIR__ . '/Bebida.php';
-        require_once __DIR__ . '/Connection.php';
-
-        use PDO;
-
-        class BebidaDAO {
-            private $conn;
-
-            public function __construct() {
-                $this->conn = Connection::getInstance();
-
-                // Cria a tabela se não existir
-                $this->conn->exec(
-                    "CREATE TABLE IF NOT EXISTS bebidas (\n" .
-                    "id INT AUTO_INCREMENT PRIMARY KEY,\n" .
-                    "nome VARCHAR(100) NOT NULL UNIQUE,\n" .
-                    "categoria VARCHAR(50) NOT NULL,\n" .
-                    "volume VARCHAR(20) NOT NULL,\n" .
-                    "valor DECIMAL(10,2) NOT NULL,\n" .
-                    "qtde INT NOT NULL\n)"
-                );
-            }
-
-            // CREATE
-            public function criarBebida(Bebida $bebida) {
-                $stmt = $this->conn->prepare(
-                    "INSERT INTO bebidas (nome, categoria, volume, valor, qtde) VALUES (:nome, :categoria, :volume, :valor, :qtde)"
-                );
-                $stmt->execute([
-                    ':nome' => $bebida->getNome(),
-                    ':categoria' => $bebida->getCategoria(),
-                    ':volume' => $bebida->getVolume(),
-                    ':valor' => $bebida->getValor(),
-                    ':qtde' => $bebida->getQtde()
-                ]);
-            }
-
-            // Compatibilidade com controller (plural)
-            public function criarBebidas(Bebida $bebida) {
-                $this->criarBebida($bebida);
-            }
-
-            // READ
-            public function lerBebidas() {
-                $stmt = $this->conn->query("SELECT * FROM bebidas ORDER BY nome");
-                $result = [];
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $result[] = new Bebida(
-                        $row['nome'],
-                        $row['categoria'],
-                        $row['volume'],
-                        $row['valor'],
-                        $row['qtde']
-                    );
-                }
-                return $result;
-            }
-
-            // UPDATE (rename/full update)
-            public function atualizarBebida($nomeOriginal, $novoNome, $categoria, $volume, $valor, $qtde) {
-                $stmt = $this->conn->prepare(
-                    "UPDATE bebidas SET nome = :novoNome, categoria = :categoria, volume = :volume, valor = :valor, qtde = :qtde WHERE nome = :nomeOriginal"
-                );
-                $stmt->execute([
-                    ':novoNome' => $novoNome,
-                    ':categoria' => $categoria,
-                    ':volume' => $volume,
-                    ':valor' => $valor,
-                    ':qtde' => $qtde,
-                    ':nomeOriginal' => $nomeOriginal
-                ]);
-            }
-
-            // Atualização mínima usada pelo controller: atualiza valor e quantidade por nome
-            public function atualizarBebidas($nome, $valor, $qtde) {
-                $stmt = $this->conn->prepare("UPDATE bebidas SET valor = :valor, qtde = :qtde WHERE nome = :nome");
-                $stmt->execute([
-                    ':valor' => $valor,
-                    ':qtde' => $qtde,
-                    ':nome' => $nome
-                ]);
-            }
-
-            // DELETE
-            public function excluirBebida($nome) {
-                $stmt = $this->conn->prepare("DELETE FROM bebidas WHERE nome = :nome");
-                $stmt->execute([':nome' => $nome]);
-            }
-
-            // BUSCAR POR NOME (internal)
-            public function buscarPorNome($nome) {
-                $stmt = $this->conn->prepare("SELECT * FROM bebidas WHERE nome = :nome LIMIT 1");
-                $stmt->execute([':nome' => $nome]);
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($row) {
-                    return new Bebida(
-                        $row['nome'],
-                        $row['categoria'],
-                        $row['volume'],
-                        $row['valor'],
-                        $row['qtde']
-                    );
-                }
-                return null;
-            }
-
-            // Compatibilidade com controller
-            public function buscarBebidaPorNome($nome) {
-                return $this->buscarPorNome($nome);
-            }
-
-            // Editar — atualiza categoria, volume, valor e qtde para um nome existente
-            public function editarBebida($nome, $categoria, $volume, $valor, $qtde) {
-                $stmt = $this->conn->prepare(
-                    "UPDATE bebidas SET categoria = :categoria, volume = :volume, valor = :valor, qtde = :qtde WHERE nome = :nome"
-                );
-                $stmt->execute([
-                    ':categoria' => $categoria,
-                    ':volume' => $volume,
-                    ':valor' => $valor,
-                    ':qtde' => $qtde,
-                    ':nome' => $nome,
-                ]);
-            }
-        }
+}
+?>
