@@ -18,14 +18,13 @@ class ProjetoController {
     }
 
     // Cadastra nova ordem de serviço
-    public function criar($status, $observacao, $dataAbertura, $dataFechamento) {
-        // Data de abertura padrão (se não for fornecida)
+    public function criar($status, $observacao, $dataAbertura, $dataFechamento, $nomecarro = null) {
         $dataAbertura = $dataAbertura ?: date('Y-m-d');
         
         // Data de fechamento pode ser vazia na criação
         $dataFechamento = $dataFechamento ?: '';
 
-        $os = new OrdemServico($status, $observacao, $dataAbertura, $dataFechamento);
+        $os = new OrdemServico($status, $observacao, $dataAbertura, $dataFechamento, $nomecarro);
         return $this->dao->criarOrdemServico($os);
     }
 
@@ -34,13 +33,14 @@ class ProjetoController {
     }
 
     // Atualiza ordem de serviço existente
-    public function editar($codOS, $status, $observacao, $dataAbertura, $dataFechamento) {
-        return $this->dao->editarOrdemServico($codOS, $status, $observacao, $dataAbertura, $dataFechamento);
+    public function editar($codOS, $status, $observacao, $dataAbertura, $dataFechamento, $nomecarro = null) {
+        return $this->dao->editarOrdemServico($codOS, $status, $observacao, $dataAbertura, $dataFechamento, $nomecarro);
     }
 
     // Deleta uma ordem de serviço
     public function deletar($codOS) {
         return $this->dao->excluirOrdemServico($codOS);
     }
+
 }
 ?>

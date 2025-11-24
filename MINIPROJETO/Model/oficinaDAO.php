@@ -26,7 +26,8 @@ private function carregarArquivo() {
                         $info['observacao'],   // 2. Observacao
                         $info['dataAbertura'], // 3. DataAbertura
                         $info['dataFechamento'], // 4. DataFechamento
-                        (int)$info['codOS']    // 5. CodOS (agora por último)
+                        $info['nomecarro'],     // 5. NomeCarro
+                        (int)$info['codOS']    
                     );
                 }
             }
@@ -41,7 +42,8 @@ private function carregarArquivo() {
                 'status' => $os->getStatus(),
                 'observacao' => $os->getObservacao(),
                 'dataAbertura' => $os->getDataAbertura(),
-                'dataFechamento' => $os->getDataFechamento()
+                'dataFechamento' => $os->getDataFechamento(),
+                'nomecarro' => $os->getNomeCarro()
             ];
         }
 
@@ -79,14 +81,15 @@ private function carregarArquivo() {
     }
 
     // UPDATE
-    public function editarOrdemServico($codOS, $status, $observacao, $dataAbertura, $dataFechamento) {
+    public function editarOrdemServico($codOS, $status, $observacao, $dataAbertura, $dataFechamento, $nomecarro) {
         $codOS = (int)$codOS;
         if (isset($this->ordensArray[$codOS])) {
             $os = $this->ordensArray[$codOS];
             $os->setStatus($status)
                ->setObservacao($observacao)
                ->setDataAbertura($dataAbertura)
-               ->setDataFechamento($dataFechamento);
+               ->setDataFechamento($dataFechamento)
+               ->setNomeCarro($nomecarro);
                
             $this->salvarArquivo();
             return true;

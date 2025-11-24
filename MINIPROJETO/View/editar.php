@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace mini_projeto;
 
@@ -18,9 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'atualiz
     $observacao        = $_POST['observacao'] ?? '';
     $dataAbertura      = $_POST['dataAbertura'] ?? '';
     $dataFechamento    = $_POST['dataFechamento'] ?? '';
+    $nomecarro         = $_POST['nomecarro'] ?? '';
 
     if ($codOS) {
-        $controller->editar($codOS, $status, $observacao, $dataAbertura, $dataFechamento);
+        $controller->editar($codOS, $status, $observacao, $dataAbertura, $dataFechamento, $nomecarro);
 
         header('Location: index.php');
         exit();
@@ -97,12 +98,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'buscar'
     </style>
 </head>
 <body>
-    <h1>Editar Ordem de Serviço (OS): **<?php echo htmlspecialchars($ordemServico->getCodOS()); ?>**</h1>
+    <h1>Editar Ordem de Serviço <?php echo htmlspecialchars((string) $ordemServico->getCodOS(), ENT_QUOTES, 'UTF-8'); ?></h1>
 
     <form method="POST">
         <input type="hidden" name="acao" value="atualizar"> 
         
-        <input type="hidden" name="codOS" value="<?php echo htmlspecialchars($ordemServico->getCodOS()); ?>"> 
+        <input type="hidden" name="codOS" value="<?php echo htmlspecialchars((string) $ordemServico->getCodOS(), ENT_QUOTES, 'UTF-8'); ?>"> 
+
+        <label for="nomecarro">Nome do Carro:</label>
+       <textarea name="nomecarro" id="nomecarro" placeholder="Nome do Carro" maxlength="100"><?php echo htmlspecialchars((string) $ordemServico->getNomeCarro(), ENT_QUOTES, 'UTF-8'); ?></textarea>
         
         <label for="status">Status:</label>
         <select name="status" id="status" required>
@@ -114,14 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'buscar'
         </select>
         
         <label for="observacao">Observação:</label>
-        <textarea name="observacao" id="observacao" placeholder="Detalhes sobre a OS (máx. 100 caracteres)" maxlength="100"><?php echo htmlspecialchars($ordemServico->getObservacao()); ?></textarea>
+        <textarea name="observacao" id="observacao" placeholder="Detalhes sobre a OS (máx. 100 caracteres)" maxlength="100"><?php echo htmlspecialchars((string) $ordemServico->getObservacao(), ENT_QUOTES, 'UTF-8'); ?></textarea>
         
         <label for="dataAbertura">Data de Abertura:</label>
-        <input type="date" name="dataAbertura" id="dataAbertura" value="<?php echo htmlspecialchars($ordemServico->getDataAbertura()); ?>" required>
+        <input type="date" name="dataAbertura" id="dataAbertura" value="<?php echo htmlspecialchars((string) $ordemServico->getDataAbertura(), ENT_QUOTES, 'UTF-8'); ?>" required>
         
-
         <label for="dataFechamento">Data de Fechamento (Opcional):</label>
-        <input type="date" name="dataFechamento" id="dataFechamento" value="<?php echo htmlspecialchars($ordemServico->getDataFechamento()); ?>">
+        <input type="date" name="dataFechamento" id="dataFechamento" value="<?php echo htmlspecialchars((string) $ordemServico->getDataFechamento(), ENT_QUOTES, 'UTF-8'); ?>">
         
 
         <button type="submit">Salvar Alterações</button>

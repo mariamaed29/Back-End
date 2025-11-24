@@ -14,7 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['status'] ?? '',
             $_POST['observacao'] ?? '',
             $_POST['dataAbertura'] ?? '',
-            $_POST['dataFechamento'] ?? ''
+            $_POST['dataFechamento'] ?? '',
+            $_POST['nomecarro'] ?? ''
         );
     } elseif ($acao === 'deletar') {
         $controller->deletar($_POST['codOS'] ?? null);
@@ -108,9 +109,13 @@ $ordensServico = $controller->Ler();
     </style>
 </head>
 <body>
-    <h1>Lançamento de Ordem de Serviço (OS)</h1>
+    <h1>Lançamento de Ordem de Serviço</h1>
     <form method="POST">
         <input type="hidden" name="acao" value="criar">
+
+        <label for="nomecarro">Nome do Carro:</label>
+        <input type="text" name="nomecarro" id="nomecarro" required>   
+    
         
         <label for="status">Status:</label>
         <select name="status" id="status" required>
@@ -143,6 +148,7 @@ $ordensServico = $controller->Ler();
                 <th>Observação</th>
                 <th>Data Abertura</th>
                 <th>Data Fechamento</th>
+                <th>Nome do Carro</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -152,21 +158,23 @@ $ordensServico = $controller->Ler();
             foreach ($listaOS as $os): 
             ?>
             <tr>
-                <td><?php echo htmlspecialchars($os->getCodOS()); ?></td>
-                <td><?php echo htmlspecialchars($os->getStatus()); ?></td>
-                <td><?php echo htmlspecialchars($os->getObservacao()); ?></td>
-                <td><?php echo htmlspecialchars($os->getDataAbertura()); ?></td>
-                <td><?php echo htmlspecialchars($os->getDataFechamento()); ?></td>
+                <td><?php echo htmlspecialchars((string) $os->getCodOS(), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars((string) $os->getStatus(), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars((string) $os->getObservacao(), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars((string) $os->getDataAbertura(), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars((string) $os->getDataFechamento(), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars((string) $os->getNomeCarro(), ENT_QUOTES, 'UTF-8'); ?></td>
+                
                 <td>
                     <form method="POST" class="form-acao">
                         <input type="hidden" name="acao" value="deletar">
-                        <input type="hidden" name="codOS" value="<?php echo htmlspecialchars($os->getCodOS()); ?>">
-                        <button type="submit" class="btn-deletar">Excluir</button>
+                        <input type="hidden" name="codOS" value="<?php echo htmlspecialchars((string) $os->getCodOS(), ENT_QUOTES, 'UTF-8'); ?>">
+                        <button type="submit" class="btn-deletar" onclick="return confirm('Confirma exclusão desta OS?');">Excluir</button>
                     </form>
                     
                     <form method="POST" class="form-acao" action="editar.php">
                         <input type="hidden" name="acao" value="buscar"> 
-                        <input type="hidden" name="codOS" value="<?php echo htmlspecialchars($os->getCodOS()); ?>">
+                        <input type="hidden" name="codOS" value="<?php echo htmlspecialchars((string) $os->getCodOS(), ENT_QUOTES, 'UTF-8'); ?>">
                         <button type="submit" class="btn-editar">Editar</button>
                     </form>
                 </td>
@@ -176,4 +184,3 @@ $ordensServico = $controller->Ler();
     </table>
 </body>
 </html>
-
